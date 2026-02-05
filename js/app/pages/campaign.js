@@ -28,7 +28,6 @@ export const campaign = {
 
 	watch: {
 		modelValue(val) {
-			// если файл (новая загрузка)
 			if (val instanceof File) {
 				const reader = new FileReader();
 				reader.onload = () => {
@@ -36,11 +35,9 @@ export const campaign = {
 				};
 				reader.readAsDataURL(val);
 			}
-			// если строка (уже загруженное изображение)
 			else if (typeof val === 'string' && val) {
 				this.value = this.parent.url + '/' + val;
 			}
-			// если пусто
 			else {
 				this.value = null;
 			}
