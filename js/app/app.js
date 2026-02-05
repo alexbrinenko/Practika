@@ -3,6 +3,8 @@ import { popup } from './widgets/popup.js';
 import { msg } from './widgets/msg.js';
 import { header } from './widgets/header.js';
 import { toogle } from './widgets/toogle.js';
+import { img } from './widgets/img.js';
+
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -37,38 +39,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 router.isReady().then(() => {
-
-                    if (window.localStorage.getItem('user')) {
-                        self.user = JSON.parse(window.localStorage.getItem('user'));
-
-                        if (self.$route.path === '/' && self.user.type === 'admin') {
-                            self.page('/campaigns');
-
-                        } else if (
-                            ['/campaigns', '/campaign', '/users', '/user'].includes(self.$route.path)
-                            && self.user.type !== 'admin'
-                        ) {
-                            self.page('/statistics');
-
-                        } else if (
-                            ['/statistics', '/payments', '/sites'].includes(self.$route.path)
-                            && self.user.type === 'admin'
-                        ) {
-                            self.page('/campaigns');
-
-                        } else if (
-                            ['/campaigns', '/campaign', '/users', '/user', '/statistics', '/payments', '/sites']
-                                .includes(self.$route.path)
-                        ) {
-                            self.page();
-                        } else {
-                            self.page('/');
-                        }
-
-                    } else {
-                        self.page('/');
-                    }
-                });
+					if(window.localStorage.getItem("user")){
+						self.user = JSON.parse(window.localStorage.getItem("user"));	
+						if(self.$route['path']=='/' && self.user.type=='admin'){
+							self.page('/campaigns');
+						}else if(['/campaigns','/campaign','/users','/user'].includes(self.$route['path']) && self.user.type!='admin'){
+							self.page('/statistics');
+						}else if(['/statistics','/payments','/sites'].includes(self.$route['path']) && self.user.type=='admin'){
+							self.page('/campaigns');
+						}else if(['/campaigns','/campaign','/users','/user','/statistics','/payments','/sites'].includes(self.$route['path'])){				
+							self.page();
+						}else if(!['/campaigns','/campaign','/users','/user','/statistics','/payments','/sites'].includes(self.$route['path'])){				
+							self.page();
+						}
+					}else{
+						self.page('/');	
+					}
+				}); 
             },
 
             logout() {
@@ -132,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Vue.createApp(main)
         .component('toogle', toogle)    
+        .component('Image', img)    
         .component('Header', header)
         .component('popup', popup)
         .component('msg', msg)
