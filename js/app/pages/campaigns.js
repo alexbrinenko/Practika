@@ -23,7 +23,7 @@ export const campaigns = {
         }
 
         this.get();
-        this.GetFirstAndLastDate();
+        // this.GetFirstAndLastDate();
     },
 
     methods: {
@@ -43,6 +43,7 @@ export const campaigns = {
             self.loader=1;
             axios.post(this.parent.url+"/site/getCampaigns?auth="+this.parent.user.auth,data).then(function(response) {
                 self.data = response.data;
+                if (!Array.isArray(self.data.items)) self.data.items = [];
                 self.loader = 0;
             }).catch(function(error){
                 self.parent.logout();
@@ -62,7 +63,7 @@ export const campaigns = {
             }
             self.get();
             }).catch(function(error) {
-            console.log('errors: ', error);
+                console.log('errors: ', error);
             });
         },
 
@@ -85,91 +86,116 @@ export const campaigns = {
             }
         },
     },
-template: `
-    <div class="inside-content">
-        <Header ref="header" />
+    template: `
+        <div class="inside-content campaigns">
+        <Header ref = "header" />
+            <div id="spinner" v-if="loader"></div>
 
-        <div id="spinner" v-if="loader"></div>
-
-        <div class="wrapper">
+            <div class="wrapper">
             <div class="flex panel">
-                <div class="w20 ptb30"></div>
+                <div class="al">
+                    <a class="btnS" href="#" @click.prevent="parent.formData = {}; $refs.new.active = 1">
+                        <i class="fas fa-plus"></i> New
+                    </a>
+                </div>
 
-                <div class="w60 ptb20 ac date-range">
+                <div class="date-range">
                     <input type="date" v-model="date" @change="get()" />
-                    <span class="dash">-</span>
+                    <span class="dash">–</span>
                     <input type="date" v-model="date2" @change="get()" />
                 </div>
 
-                <div class="w20 al ptb30">
+                <div class="al">
                     <h1>Campaigns</h1>
                 </div>
             </div>
 
-            <div class="table" v-if="data.items">
+			<popup ref="new" :title="(parent.formData && parent.formData.id) ? 'Edit campaign' : 'New campaign'">
+				<div class="form inner-form">
+					<form @submit.prevent="action()" v-if="parent.formData">
+						<div class="row">
+							<label>Name</label>
+							<input type="text" v-model="parent.formData.title" required>
+						</div>
+							
+						<div class="row">
+							<button class="btn" v-if="parent.formData && parent.formData.id">Edit</button>
+							<button class="btn" v-if="parent.formData && !parent.formData.id">Add</button>
+						</div>							
+					</form>
+				</div>
+			</popup>	
+
+
+            <div class="table" v-if="!loader && data.items.length">
                 <table>
-                    <thead>
-                        <tr>
-                            <th class="id">#</th>
-                            <th class="id"></th>
-                            <th>Title</th>
-                            <th class="id">Views</th>
-                            <th class="id">Clicks</th>
-                            <th class="id">Leads</th>
-                            <th class="id">Fraud clicks</th>
-                            <th class="actions">Actions</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr>
+                    <th class="id">#</th>
+                    <th class="id"></th>
+                    <th>Title</th>
+                    <th class="id">Views</th>
+                    <th class="id">Clicks</th>
+                    <th class="id">Leads</th>
+                    <th class="id">Fraud clicks</th>
+                    <th class="actions">Actions</th>
+                    </tr>
+                </thead>
 
-                    <tbody>
-                        <tr v-for="(item, i) in data.items" :key="item.id">
-                            <td class="id">{{ item.id }}</td>
-                            <td class="id"></td>
+                <tbody>
+                    <tr v-for="(item, i) in data.items" :key="item.id">
+                    <td class="id">{{ item.id }}</td>
+                    <td class="id">
+                        <toogle v-model="item.published" @update:modelValue="parent.formData = { ...item }; action();" />
+                    </td>
 
-                            <td>
-                                <router-link :to="'/campaign/' + item.id">
-                                    {{ item.title }}
-                                </router-link>
-                            </td>
+                    <td>
+                        <router-link :to="'/campaign/' + item.id">
+                        {{ item.title }}
+                        </router-link>
+                    </td>
 
-                            <td class="id">
-                                <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 1)">
-                                    {{ item.views }}
-                                </a>
-                            </td>
+                    <td class="id">
+                        <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 1)">
+                        {{ item.views }}
+                        </a>
+                    </td>
 
-                            <td class="id">
-                                <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 2)">
-                                    {{ item.clicks || 0 }}
-                                </a>
-                            </td>
+                    <td class="id">
+                        <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 2)">
+                        <template v-if="item.clicks">{{ item.clicks }}</template>
+                        <template v-else>0</template>
+                        </a>
+                    </td>
 
-                            <td class="id">
-                                <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 2)">
-                                    {{ item.leads || 0 }}
-                                </a>
-                            </td>
+                    <td class="id">
+                        <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 2)">
+                        <template v-if="item.leads">{{ item.leads }}</template>
+                        <template v-else>0</template>
+                        </a>
+                    </td>
 
-                            <td class="id">
-                                <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 3)">
-                                    {{ item.fclicks || 0 }}
-                                </a>
-                            </td>
+                    <td class="id">
+                        <a href="#" @click.prevent="$refs.details.active = 1; getDetails(item.id, 3)">
+                        <template v-if="item.fclicks">{{ item.fclicks }}</template>
+                        <template v-else>0</template>
+                        </a>
+                    </td>
 
-                            <td class="actions">
-                                <a href="#" @click.prevent="parent.formData = item; del();">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <td class="actions">
+                        <a href="#" @click.prevent="parent.formData = { ...item }; del();">
+                        <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                    </tr>
+                </tbody>
                 </table>
             </div>
 
-            <div class="empty" v-if="!data.items || !data.items.length">
+            <div class="empty" v-if="!loader && !data.items.length">
                 No items
             </div>
+            </div>
         </div>
-    </div>
-`
+    `
 };

@@ -2,6 +2,7 @@ import { router } from './router.js';
 import { popup } from './widgets/popup.js';
 import { msg } from './widgets/msg.js';
 import { header } from './widgets/header.js';
+import { toogle } from './widgets/toogle.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -130,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     Vue.createApp(main)
+        .component('toogle', toogle)    
         .component('Header', header)
         .component('popup', popup)
         .component('msg', msg)

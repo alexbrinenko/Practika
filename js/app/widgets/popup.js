@@ -6,7 +6,7 @@ export const popup = {
             active: 0,
             top: '50%',
             left: '50%',
-            widthVal: '500px',
+            widthVal: '600px',
             height: 'auto'
         };
     },
