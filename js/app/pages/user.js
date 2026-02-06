@@ -325,11 +325,9 @@ export const user = {
 				</div>
 
 				<div class="flex" v-if="data && data.info">
-					<div class="w50">
-						<p><b>Email:</b> {{data.info.email}}</p>
-					</div>
-					<div class="w50">
-						<p><b>Phone:</b> {{data.info.phone}}</p>
+					<div class="w100 ar user-contacts">
+						<div><b>Email:</b> {{ data.info.email }}</div>
+						<div><b>Phone:</b> {{ data.info.phone }}</div>
 					</div>
 				</div>
 
